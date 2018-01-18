@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.mongk.intprint.MainActivity">
+
+    <RelativeLayout
+        android:id="@+id/printer_rl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="2dp" >
+
+        <TextView
+            android:id="@+id/txtPrinerStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="5dp"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="no_printer_connected" />
+
+        <Button
+            android:id="@+id/btn_connect_bluetooth_device"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/txtPrinerStatus"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:text="connect_bluetooth_device_btn" />
+
+        <Button
+            android:id="@+id/btn_print"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/btn_connect_bluetooth_device"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:text="print_btn" />
+        android:text="bt_inquiry_btn" />
+
+        <ImageView
+            android:id="@+id/printer_imgPOSPrinter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="fitXY"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="10dp"
+            android:contentDescription="contentdesctiption"/>
+    </RelativeLayout>
+
+</android.support.constraint.ConstraintLayout>
