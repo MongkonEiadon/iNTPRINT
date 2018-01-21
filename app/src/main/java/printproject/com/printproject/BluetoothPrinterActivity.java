@@ -26,10 +26,6 @@ import android.widget.Toast;
 import com.mocoo.hang.rtprinter.driver.Contants;
 import com.mocoo.hang.rtprinter.driver.HsBluetoothPrintDriver;
 
-/**
- * @author shohrab.uddin, RONGTA
- * This class is responsible to connect with a bluetooth printer
- */
 public class BluetoothPrinterActivity extends AppCompatActivity {
 
     private static final String TAG = "BloothPrinterActivity";
@@ -60,27 +56,56 @@ public class BluetoothPrinterActivity extends AppCompatActivity {
         CONTEXT = getApplicationContext();
         alertDlgBuilder = new AlertDialog.Builder(BluetoothPrinterActivity.this);
 
-        InitialBluetooth();
 
         //Initialize widgets
         InitUIControl();
+
+        //initial bluetooth adapter
+        InitialBluetooth();
+
+        //initial to connect last device
+        initializeBluetoothDevice();
 
         //intent sent
         String action = getIntent().getAction();
         if(Intent.ACTION_SEND == action){
             try {
-                Toast.makeText(this, "Received Invoiced!!", Toast.LENGTH_LONG).show();
 
-                PrintReceipt.PrintImage(BLUETOOTH_PRINTER, getIntent(), getBaseContext());
 
-                Toast.makeText(this, "Finished Printing!!", Toast.LENGTH_LONG).show();
+                Log.e(TAG, "+++ intent send was received +++");
+                initializeBluetoothDevice();
 
-                finish();
+                if(BLUETOOTH_PRINTER.IsNoConnection()){
+
+
+                    Log.e(TAG, "+++ connect to last device +++");
+                    SharedPreferences setting = getSharedPreferences("UserInfo", 0);
+                    String address = setting.getString("Address", "");
+
+
+                    Log.e(TAG, "+++device address+++" + address);
+                    device = mBluetoothAdapter.getRemoteDevice(address);
+                    // Attempt to connect to the device
+                    BLUETOOTH_PRINTER.start();
+                    BLUETOOTH_PRINTER.connect(device);
+                }
+
+                //PrintReceipt.printBillFromOrder(getApplicationContext());
+                //if(this == null)
+                    PrintReceipt.PrintImage(BLUETOOTH_PRINTER, getIntent(),getApplicationContext());
+
+                Toast.makeText(this, "พิมพ์สำเร็จ", Toast.LENGTH_SHORT).show();
+
+
+                Log.d(TAG, "+++ finished printing ++++");
+                moveTaskToBack(true);
             } catch (IOException e) {
+                Log.e(TAG, "+++ ERROR ++++" + e.getMessage());
                 e.printStackTrace();
-            }
-            finally {
-            }
+
+            } finally {  }
+
+
         }
     }
 
@@ -95,6 +120,7 @@ public class BluetoothPrinterActivity extends AppCompatActivity {
         mImgPosPrinter = (ImageView)findViewById(R.id.printer_imgPOSPrinter);
     }
 
+/*
     @Override
     public void onStart() {
         super.onStart();
@@ -103,16 +129,28 @@ public class BluetoothPrinterActivity extends AppCompatActivity {
         // If BT is not on, request that to be enabled.
         // initializeBluetoothDevice() will then be called during onActivityResult
         if (!mBluetoothAdapter.isEnabled()) {
+
+            Log.d(TAG, "++ mBluetoothAdapter is disable ++");
+
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
             // Otherwise, setup the chat session
         } else {
+
+
+
             if (BLUETOOTH_PRINTER == null){
+
+                Log.e(TAG, "++ initial Bluetoothe device ++");
                 initializeBluetoothDevice();
             }else{
                 if(BLUETOOTH_PRINTER.IsNoConnection()){
+
+                    Log.e(TAG, "++ bluetooth is offline ++");
                     mImgPosPrinter.setImageResource(R.drawable.pos_printer_offliine);
                 }else{
+
+                    Log.e(TAG, "++ connected bluetooth ++");
                     txtPrinterStatus.setText(R.string.title_connected_to);
                     txtPrinterStatus.append(device.getName());
                     mImgPosPrinter.setImageResource(R.drawable.pos_printer);
@@ -121,6 +159,8 @@ public class BluetoothPrinterActivity extends AppCompatActivity {
 
         }
     }
+
+        */
 
     private void InitialBluetooth(){
 
@@ -141,18 +181,28 @@ public class BluetoothPrinterActivity extends AppCompatActivity {
 
     private void initializeBluetoothDevice() {
 
-        if(BLUETOOTH_PRINTER == null || BLUETOOTH_PRINTER.IsNoConnection()) {
+        if (BLUETOOTH_PRINTER == null) {
 
-            Log.d(TAG, "setupChat()");
-            // Initialize HsBluetoothPrintDriver class to perform bluetooth connections
+            Log.d(TAG, "setup bluetooth because BlUETOOTH_PRINTER null");
             BLUETOOTH_PRINTER = HsBluetoothPrintDriver.getInstance();//
             BLUETOOTH_PRINTER.setHandler(new BluetoothHandler(BluetoothPrinterActivity.this));
+        }
+
+        if (BLUETOOTH_PRINTER.IsNoConnection()) {
+
+            Log.d(TAG, "BLUETOOTH PRINTER is no connection");
+            // Initialize HsBluetoothPrintDriver class to perform bluetooth connections
 
 
             SharedPreferences setting = getSharedPreferences("UserInfo", 0);
             String address = setting.getString("Address", "");
 
+
             if (address != null && address != "") {
+
+                Log.d(TAG, "Connect to address " + address);
+
+
                 device = mBluetoothAdapter.getRemoteDevice(address);
                 // Attempt to connect to the device
                 BLUETOOTH_PRINTER.start();
@@ -160,6 +210,7 @@ public class BluetoothPrinterActivity extends AppCompatActivity {
 
             }
         }
+
     }
 
     /**
@@ -185,6 +236,8 @@ public class BluetoothPrinterActivity extends AppCompatActivity {
                         Log.i(TAG, "MESSAGE_STATE_CHANGE: " + state);
                         switch (state) {
                             case HsBluetoothPrintDriver.CONNECTED_BY_BLUETOOTH:
+
+                                Log.i(TAG, "MESSAGE_STATE_CHANGE: " + "CONNECTED BY BLUETOOTH");
                                 txtPrinterStatus.setText(R.string.title_connected_to);
                                 txtPrinterStatus.append(device.getName());
                                 StaticValue.isPrinterConnected=true;
@@ -192,10 +245,13 @@ public class BluetoothPrinterActivity extends AppCompatActivity {
                                 mImgPosPrinter.setImageResource(R.drawable.pos_printer);
                                 break;
                             case HsBluetoothPrintDriver.FLAG_SUCCESS_CONNECT:
+
+                                Log.i(TAG, "MESSAGE_STATE_CHANGE: " + "FLAG_SUCCESS_CONNECT");
                                 txtPrinterStatus.setText(R.string.title_connecting);
                                 break;
 
                             case HsBluetoothPrintDriver.UNCONNECTED:
+                                Log.i(TAG, "MESSAGE_STATE_CHANGE: " + "UNCONNECTED");
                                 txtPrinterStatus.setText(R.string.no_printer_connected);
                                 break;
                         }
@@ -314,7 +370,8 @@ public class BluetoothPrinterActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(BLUETOOTH_PRINTER.IsNoConnection())
-          BLUETOOTH_PRINTER.stop();
+
+        Log.d(TAG, "++ On Destroy ++ ");
+
     }
 }

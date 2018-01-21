@@ -135,8 +135,9 @@ public class PrintReceipt {
 		if(uri != null){
 			Bitmap bmp = MediaStore.Images.Media.getBitmap(context.getContentResolver(), uri);
 
-			int maxWidth = 550;
+			//int maxWidth = 550; //384
 
+			int maxWidth = 384;
 
 			if(!printer.IsNoConnection()){
 				bmp = BitmapConvertUtil.scaleToRequiredWidth(bmp, maxWidth);
@@ -156,7 +157,6 @@ public class PrintReceipt {
 				printer.BT_Write(new byte[]{29, 118, 48, 0, xL, xH, yL, yH});
 				printer.BT_Write(pixels);
 				printer.BT_Write(new byte[]{10});
-				printer.stop();
 
 				return true;
 			}
